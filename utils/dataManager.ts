@@ -187,16 +187,13 @@ export class PictureManager extends BaseManager<Picture> {
 		];
 	}
 
-	async getPage(
-		page = -1,
+	async getAll(
+		query: string | null
 	): Promise<RavenResponse<Picture>> {
-		if (page === -1) {
-			return await super.query(`from "@empty" limit 20`)
+		if (query) {
+			return await super.query(`from "@empty" where startsWith(text, $query)`, { query })
 		} else {
-			return await super.query(
-				`from "@empty" limit $start, $end`,
-				{ start: page * 20, end: page + 1 * 20 },
-			);
+			return await super.query(`from "@empty"`)
 		}
 	}
 
@@ -205,6 +202,6 @@ export class PictureManager extends BaseManager<Picture> {
 			`from '@empty' group by tags[] select tags[], count()`
 		) as unknown as RavenResponse<{ "tags[]": string, Count: number }>
 
-		return resp.Results.map(record => ({name: record['tags[]'], count: record.Count}))
+		return resp.Results.map(record => ({ name: record['tags[]'], count: record.Count }))
 	}
 }

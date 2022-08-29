@@ -9,6 +9,8 @@ export const handler: Handlers = {
 
 		const body = await req.arrayBuffer()
 
+		if (body.byteLength === 0) return new Response(undefined, { status: 400 })
+
 		const hash = new Uint8Array(crypto.subtle.digestSync('SHA-1', body))
 		let fileHash = ''
 
@@ -16,7 +18,7 @@ export const handler: Handlers = {
 			fileHash += num.toString(16)
 		}
 
-		Deno.writeFile(`./static/images/${fileHash}`, new Uint8Array(body), { create: true,  })
+		Deno.writeFile(`./static/images/${fileHash}`, new Uint8Array(body), { create: true, })
 
 		const data = {
 			'@metadata': DEFAULT_META,
